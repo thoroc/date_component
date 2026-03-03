@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 pub mod date_component {
     use chrono::prelude::*;
 
@@ -32,11 +34,16 @@ pub mod date_component {
     }
 
     /// Returns a DateComponent object that represents the difference between the from and to datetime.
-    pub fn calculate<T: chrono::TimeZone>(from_datetime: &DateTime<T>, to_datetime: &DateTime<T>) -> DateComponent {
+    pub fn calculate<T: chrono::TimeZone>(
+        from_datetime: &DateTime<T>,
+        to_datetime: &DateTime<T>,
+    ) -> DateComponent {
         let timezone = from_datetime.timezone();
         let to_datetime_in_from_tz = to_datetime.with_timezone(&timezone);
 
-        let duration = from_datetime.clone().signed_duration_since(to_datetime.clone());
+        let duration = from_datetime
+            .clone()
+            .signed_duration_since(to_datetime.clone());
         let seconds = duration.num_seconds();
         let (start, end, invert) = match seconds {
             x if x <= 0 => (from_datetime.clone(), to_datetime_in_from_tz, false),
@@ -47,7 +54,7 @@ pub mod date_component {
         let mut year = end.year() as i64 - start.year() as i64;
         let mut month = end.month() as i64 - start.month() as i64;
         let mut day = end.day() as i64 - start.day() as i64;
-        
+
         // For DST handling, we need to use duration for time components
         // instead of calculating differences directly
         let duration_hours = duration.num_hours().abs() % 24;
@@ -69,8 +76,10 @@ pub mod date_component {
                 previous_year,
                 previous_month,
                 31, // Try 31, it will be adjusted down correctly
-                0, 0, 0, // Time doesn't matter for finding the last day
-                &timezone
+                0,
+                0,
+                0, // Time doesn't matter for finding the last day
+                &timezone,
             );
             day += last_day_of_prev_month.day() as i64;
         }
@@ -91,31 +100,31 @@ pub mod date_component {
         // Consistency check: fix cases where small time differences are incorrectly
         // calculated as larger units due to crossing date boundaries
         let total_seconds = duration.num_seconds().abs();
-        
+
         // If total time is less than 1 day but we calculated days, adjust
         if total_seconds < 86400 && final_day > 0 {
-            // For small time differences that cross boundaries, 
+            // For small time differences that cross boundaries,
             // use the total duration directly instead of calculated day components
             final_day = 0;
             final_hour = total_seconds / 3600;
             final_minute = (total_seconds % 3600) / 60;
             final_second = total_seconds % 60;
         }
-        
+
         // Similar check for hours when total time is less than 1 hour
         if total_seconds < 3600 && final_hour > 0 {
             let hour_seconds = final_hour * 3600;
             let remaining_seconds = hour_seconds + final_minute * 60 + final_second;
-            
+
             final_hour = 0;
             final_minute = remaining_seconds / 60;
             final_second = remaining_seconds % 60;
         }
-        
+
         // Similar check for minutes when total time is less than 1 minute
         if total_seconds < 60 && final_minute > 0 {
             let minute_seconds = final_minute * 60;
-            final_second = minute_seconds + final_second;
+            final_second += minute_seconds;
             final_minute = 0;
         }
 
@@ -143,14 +152,14 @@ pub mod date_component {
     /// Given date specified by year / month / day where the `day` may be invalid,
     /// (e.g. 2021-02-30), return the nearest valid day before it
     /// (e.g. 2021-02-28).
-    fn get_nearest_day_before<T: TimeZone>(
+    pub(crate) fn get_nearest_day_before<T: TimeZone>(
         year: i32,
         month: u32,
         day: u32,
         hour: u32,
         min: u32,
         sec: u32,
-        timezone: &T
+        timezone: &T,
     ) -> DateTime<T> {
         let mut subtract = 0;
         loop {
@@ -171,28 +180,7 @@ pub mod date_component {
 mod internal_tests {
     use chrono::prelude::*;
 
-    fn get_nearest_day_before<T: TimeZone>(
-        year: i32,
-        month: u32,
-        day: u32,
-        hour: u32,
-        min: u32,
-        sec: u32,
-        timezone: &T
-    ) -> DateTime<T> {
-        let mut subtract = 0;
-        loop {
-            match timezone.with_ymd_and_hms(year, month, day - subtract, hour, min, sec) {
-                chrono::LocalResult::None => subtract += 1,
-                chrono::LocalResult::Single(d) => {
-                    return d;
-                }
-                chrono::LocalResult::Ambiguous(d, _) => {
-                    return d;
-                }
-            }
-        }
-    }
+    use crate::date_component::get_nearest_day_before;
 
     #[test]
     fn test_get_nearest_day_before_regular() {

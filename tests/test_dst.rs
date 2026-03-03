@@ -1,8 +1,8 @@
-use date_component::date_component::*;
 use chrono::prelude::*;
 use chrono_tz::America::Los_Angeles;
-use chrono_tz::Europe::Paris;
 use chrono_tz::Australia::Sydney;
+use chrono_tz::Europe::Paris;
+use date_component::date_component::*;
 
 #[test]
 fn test_difference_during_dst() {
@@ -18,7 +18,7 @@ fn test_dst_transition_backward() {
     let end = Los_Angeles.with_ymd_and_hms(2022, 11, 6, 2, 30, 0).unwrap();
     let diff = calculate(&start, &end);
     println!("{:?}", diff);
-    assert_eq!(diff.hour, 3);  // Ensure that the difference is 3 hours due to the DST transition
+    assert_eq!(diff.hour, 3); // Ensure that the difference is 3 hours due to the DST transition
 }
 
 fn assert_date_component_eq(actual: DateComponent, expected: DateComponent) {
@@ -39,7 +39,9 @@ fn assert_date_component_eq(actual: DateComponent, expected: DateComponent) {
 
 #[test]
 fn test_dst_start_transition_los_angeles() {
-    let before_dst_start = Los_Angeles.with_ymd_and_hms(2022, 3, 13, 1, 59, 59).unwrap();
+    let before_dst_start = Los_Angeles
+        .with_ymd_and_hms(2022, 3, 13, 1, 59, 59)
+        .unwrap();
     let after_dst_start = Los_Angeles.with_ymd_and_hms(2022, 3, 13, 3, 0, 0).unwrap();
     let diff = calculate(&before_dst_start, &after_dst_start);
     let expected = DateComponent {
@@ -99,7 +101,9 @@ fn test_dst_start_transition_sydney() {
 
 #[test]
 fn test_dst_end_transition_los_angeles() {
-    let before_dst_end = Los_Angeles.with_ymd_and_hms(2022, 11, 6, 0, 59, 59).unwrap();
+    let before_dst_end = Los_Angeles
+        .with_ymd_and_hms(2022, 11, 6, 0, 59, 59)
+        .unwrap();
     let after_dst_end = Los_Angeles.with_ymd_and_hms(2022, 11, 6, 2, 0, 0).unwrap();
     let diff = calculate(&before_dst_end, &after_dst_end);
     let expected = DateComponent {

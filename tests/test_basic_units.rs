@@ -1,13 +1,13 @@
-use date_component::date_component::*;
 use chrono::prelude::*;
-use test_case::test_case;
-use chrono_tz::US::Pacific;
+use chrono_tz::Africa::Lome;
+use chrono_tz::Asia::Kolkata;
 use chrono_tz::Asia::Shanghai;
 use chrono_tz::Asia::Tokyo;
-use chrono_tz::Asia::Kolkata;
 use chrono_tz::Europe::Paris;
 use chrono_tz::Pacific::Midway;
-use chrono_tz::Africa::Lome;
+use chrono_tz::US::Pacific;
+use date_component::date_component::*;
+use test_case::test_case;
 
 #[test_case(1998, 1999; "world cup")]
 #[test_case(1999, 2000; "end of century")]
@@ -43,7 +43,9 @@ fn test_previous_year(year_start: i32, year_end: i32) {
     assert_eq!(sut.invert, true);
 
     // with shared timezone
-    let from = Shanghai.with_ymd_and_hms(year_start, 1, 1, 0, 0, 0).unwrap();
+    let from = Shanghai
+        .with_ymd_and_hms(year_start, 1, 1, 0, 0, 0)
+        .unwrap();
     let to = Shanghai.with_ymd_and_hms(year_end, 1, 1, 0, 0, 0).unwrap();
 
     let sut = calculate(&from, &to);
@@ -83,7 +85,7 @@ fn test_next_month(year_start: i32, month_start: u32, year_end: i32, month_end: 
     let to = Tokyo
         .with_ymd_and_hms(year_end, month_end, 1, 0, 0, 0)
         .unwrap();
-    
+
     let sut = calculate(&from, &to);
     println!("tokyo_result: {:?}", sut);
     assert_eq!(sut.month, 1);
@@ -200,8 +202,8 @@ fn test_next_week(
 
     // with shared timezone
     let from = Midway
-    .with_ymd_and_hms(year_start, month_start, day_start, 0, 0, 0)
-    .unwrap();
+        .with_ymd_and_hms(year_start, month_start, day_start, 0, 0, 0)
+        .unwrap();
     let to = Midway
         .with_ymd_and_hms(year_end, month_end, day_end, 0, 0, 0)
         .unwrap();
@@ -367,7 +369,11 @@ fn test_previous_day(
         .with_ymd_and_hms(year_end, month_end, day_end, 0, 0, 0)
         .unwrap();
     println!("from: {:?}, to: {:?}", from, to);
-    println!("from: {:?}, to: {:?}", from.with_timezone(&Utc), to.with_timezone(&Utc));
+    println!(
+        "from: {:?}, to: {:?}",
+        from.with_timezone(&Utc),
+        to.with_timezone(&Utc)
+    );
     let sut = calculate(&from, &to);
     assert_eq!(sut.day, 1);
     assert_eq!(sut.invert, true);

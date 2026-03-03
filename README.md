@@ -13,8 +13,8 @@ use chrono::prelude::*;
 use date_component::date_component;
 
 fn main() {
-    let date1 = Utc.ymd(2015, 4, 20).and_hms(0, 0, 0);
-    let date2 =  Utc.ymd(2015, 12, 19).and_hms(0, 0, 0);
+    let date1 = Utc.with_ymd_and_hms(2015, 4, 20, 0, 0, 0).unwrap();
+    let date2 = Utc.with_ymd_and_hms(2015, 12, 19, 0, 0, 0).unwrap();
     
     let date_interval = date_component::calculate(&date1, &date2);
     println!("{:?}", date_interval);

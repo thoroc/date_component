@@ -1,5 +1,5 @@
-use date_component::date_component::*;
 use chrono::prelude::*;
+use date_component::date_component::*;
 
 #[test]
 fn test_leap_year_calculation() {
@@ -43,8 +43,8 @@ fn test_month_edge_cases() {
 
 #[test]
 fn test_timezone_crossing_date_line() {
-    use chrono_tz::Pacific::Auckland;
     use chrono_tz::America::Los_Angeles;
+    use chrono_tz::Pacific::Auckland;
 
     // forward test
     let from = Auckland.with_ymd_and_hms(2023, 1, 1, 0, 0, 0).unwrap();

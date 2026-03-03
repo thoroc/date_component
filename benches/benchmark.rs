@@ -1,5 +1,7 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use chrono::{TimeZone, Utc, Local};
+use chrono::{Local, TimeZone, Utc};
+use std::hint::black_box;
+
+use criterion::{Criterion, criterion_group, criterion_main};
 use date_component::date_component;
 
 fn benchmark_calculate(c: &mut Criterion) {
@@ -7,16 +9,15 @@ fn benchmark_calculate(c: &mut Criterion) {
 
     let date1 = timezone.with_ymd_and_hms(2023, 1, 1, 0, 0, 0).unwrap();
     let date2 = timezone.with_ymd_and_hms(2023, 1, 2, 0, 0, 0).unwrap();
-    
+
     let date3 = timezone.with_ymd_and_hms(2023, 1, 31, 0, 0, 0).unwrap();
     let date4 = timezone.with_ymd_and_hms(2023, 2, 1, 0, 0, 0).unwrap();
-    
+
     let date5 = timezone.with_ymd_and_hms(2022, 12, 31, 23, 59, 59).unwrap();
     let date6 = timezone.with_ymd_and_hms(2023, 1, 1, 0, 0, 0).unwrap();
-    
+
     let date7 = Local.with_ymd_and_hms(2023, 3, 12, 1, 30, 0).unwrap();
     let date8 = Local.with_ymd_and_hms(2023, 3, 12, 3, 30, 0).unwrap();
-
 
     c.bench_function("calculate simple", |b| {
         b.iter(|| date_component::calculate(black_box(&date1), black_box(&date2)))
